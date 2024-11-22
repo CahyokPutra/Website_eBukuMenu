@@ -1,3 +1,13 @@
+<?php
+
+ include 'database.php';
+    $query_select = 'SELECT * FROM produk WHERE idproduk = "'.$_GET['id'].'"';
+    $run_query_select = mysqli_query($connn, $query_select);
+    $d = mysqli_fetch_object($run_query_select);
+
+
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -89,12 +99,13 @@
 		<div class="card-menu">
 
 			<a href="index.php" class="btn-back"><i class="fa fa-arrow-left"></i></a>
-			<img src="uploads/products/nasi.jpg">
+			<img src="uploads/products/<?= $d->foto ?>">
 
 			<div class="card-body">
-				<div class="menu-name">Paket nasi 1</div>
-				<div class="menu-description">Nasi + Ayam Sambal Matah + lalapan + Es teh</div>
-				<div class="menu-price">Rp.15.000</div>
+				<div class="menu-name"><?= $d->namaproduk ?></div>
+				<div class="menu-description"><?= $d->deskripsi ?></div>
+							<div class="menu-price">Rp<?= number_format($d['hargaproduk'], 0 ,',','.')?></div>
+
 			</div>
 		</div>	
 
@@ -102,10 +113,15 @@
 			
 			<h3>Menu Tambahan</h3>
 			<ul>
-				<li><span>Sambal terasi</span> <span>+0</span></li>
-				<li><span>Sambal goreng</span> <span>+2000</span></li>
-				<li><span>Sambal Cabe ijo</span> <span>+3000</span></li>
-				<li><span>Sambal BBQ</span> <span>+5000</span></li>
+				<?php 
+				    $query_select_extra_menu =  'SELECT * FROM extra_menu WHERE idproduk = "'.$_GET['id'].'" ';
+                    $run_query_select_extra_menu = mysqli_query($connn, $query_select_extra_menu);
+
+                    while ($row = mysqli_fetch_array($run_query_select_extra_menu )) {
+
+				?>
+				<li><span><?= $row['nama'] ?></span> <span><?= number_format($row['harga'], 0 ,',','.')?>/span></li>
+			<?php }?>
 			</ul>
 
 		</div>
