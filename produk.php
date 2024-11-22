@@ -7,9 +7,21 @@ include '../database.php';
 
     //cek jika ada parameters delete
     if(isset($_GET['delete'])) {
+
+        $query_select_foto = '  SELECT foto FROM produk WHERE idproduk = "'.$_GET['delete'].'"';
+        $run_query_select_foto = mysqli_query($connn, $query_select_foto);
+        $d = mysqli_fetch_object($run_query_select_foto);
+
+        if(file_exists('../uploads/products/ '. $d->foto)){
+            unlink('../uploads/products/' . $d->foto);
+        }
         // proses delete data
         $query_delete = 'DELETE FROM produk WHERE idproduk = "'.$_GET['delete'].'"';
         $run_query_delete = mysqli_query($connn, $query_delete);
+       $query_delete_extra = 'DELETE FROM extra_menu WHERE idproduk = "'.$_GET['id'].'"';
+       $run_query_delete_extra = mysqli_query($connn, $query_delete_extra);
+
+
 
         if($run_query_delete) {
             echo "<script>window.location = 'produk.php'</script>";
@@ -22,7 +34,7 @@ include '../database.php';
 <div class="content">
     <div class="container">
 
-        <h3 class="page-title">Produk</h3>
+        <h3 class="page-title">produk</h3>
         
         <div class="card">
             <a href="produk_add.php" class="btn" title="Tambah Data"><i class="fa fa-plus"></i></a>
@@ -46,7 +58,7 @@ include '../database.php';
 
                     <tr>
                         <td align="center"><?= $nomor++ ?></td>
-                        <td><img src="../uploads/products/<?= $row['foto'] ?>" alt="Ayam Goreng" widt="100"></td>
+                        <td><img src="../uploads/products/<?= $row['foto'] ?>" alt="Ayam Goreng" width="100"></td>
                         <td><?= $row['namaproduk'] ?></td>
                         <td><?= $row['hargaproduk'] ?></td>
                         <td><?= $row['kategori'] ?></td>

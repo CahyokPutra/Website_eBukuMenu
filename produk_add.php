@@ -34,7 +34,7 @@ include '../database.php';
             </div>
                 <div class="input-group">
                 <label>Foto</label>
-                <input type="file" name="foto" required>
+                <input type="file" name="foto">
             </div>
             <h3>Extra Menu</h3>
             <table class="table">
@@ -59,49 +59,52 @@ include '../database.php';
 
          <?php 
 
-         if(isset($_POST['submit'])){
+             if (isset($_POST['submit'])) {
+                // Proses upload gambar
+                $name = $_FILES['foto']['name'];
+                $tmp_name = $_FILES['foto']['tmp_name'];
+                move_uploaded_file($tmp_name, '../uploads/products/' . $name);
 
-            //proses input data
+                // Proses masukkan data produk
+                $query_insert = 'INSERT INTO produk (namaproduk, hargaproduk, deskripsi, foto, kategori) 
+                                 VALUES (
+                                     "'.$_POST['nama'].'",
+                                     "'.$_POST['harga'].'",
+                                     "'.$_POST['deskripsi'].'",
+                                     "'.$name.'",
+                                     "'.$_POST['kategori'].'"
+                                 )';
 
+                $run_query_insert = mysqli_query($connn, $query_insert);
+                $idproduk = mysqli_insert_id($run_query_insert);
 
-            // tampung dta file yg diupload
-            $name = $_FILES['foto']['name'];
-            $tmp_name = $_FILES['foto']['tmp_name'];
-            // proses up;load file(filename)
-              move_uploaded_file($tmp_name, '../uploads/products/' . $name);
-            //proses masukkan data
-               $query_insert = 'INSERT INTO produk (namaproduk, hargaproduk, deskripsi, foto, kategori) 
-                VALUES (
-                    "'.$_POST['nama'].'",
-                    "'.$_POST['harga'].'",
-                    "'.$_POST['deskripsi'].'",
-                    "'.$name.'",
-                    "'.$_POST['kategori'].'"
-                )';
-
-            $run_query_insert = mysqli_query($connn, $query_insert);
-            if ($run_query_insert) {
-             
-            //insert data extr menu
-            $sql = [];  
-            if (isset($_POST['extraname'])) {
-                for ($i=0; $i < count($_POST['extraname']); $i++) { 
-                    $sql[] = '("'.$idproduk.'", "'.$_POST['extraname'][$i].'", "'.$_POST['extraharga'][$i].'" )';
+                if (!$run_query_insert) {
+                    echo 'Data produk gagal disimpan: ' . mysqli_error($connn);
+                    exit();
                 }
+
+                // Proses masukkan extra menu
+                $sql = [];
+                if (isset($_POST['extraname']) && isset($_POST['extraharga']) && count($_POST['extraname']) > 0 && count($_POST['extraharga']) > 0) {
+                    for ($i = 0; $i < count($_POST['extraname']); $i++) {
+                        if (!empty($_POST['extraname'][$i]) && !empty($_POST['extraharga'][$i])) {
+                            $sql[] = '("'.$idproduk.'", "'.$_POST['extraname'][$i].'", "'.$_POST['extraharga'][$i].'")';
+                        }
+                    }
+                }
+
+                if (!empty($sql)) {
+                    $query_insert_extra_menu = 'INSERT INTO extra_menu (idproduk, nama, harga) VALUES ' . implode(",", $sql);
+                    $run_query_insert_extra_menu = mysqli_query($connn, $query_insert_extra_menu);
+
+                    if (!$run_query_insert_extra_menu) {
+                        echo 'Data extra menu gagal disimpan: ' . mysqli_error($connn);
+                        exit();
+                    }
+                }
+
+                echo 'Data berhasil disimpan';
             }
-            $query_insert_extra_menu = 'INSERT INTO extra_menu
-            (idproduk, nama, harga) VALUES ' . implode(",", $sql);
-
-            $run_query_insert_extra_menu = mysqli_query($connn, $run_query_insert_extra_menu);
-            if ($run_query_insert_extra_menu) {
-                 echo 'data berhasil disimpan';
-             }else{
-                 echo 'data gagal disimpan' . mysqli_error($connn);
-                 
-            }
-
-
-         }
 
 
          ?>
@@ -110,7 +113,7 @@ include '../database.php';
 
     </div>
     
-</div>
+</div>  
 
 <script type="text/javascript">
     
@@ -118,7 +121,7 @@ include '../database.php';
     var extraMenuList =  document.getElementById("extraMenuList")
 
     btnAdd.addEventListener("click", function(e){
-        e.preventDefault()
+        e.preventDefault();
 
         var listItem = document.createElement('tr');
 
@@ -130,12 +133,12 @@ include '../database.php';
           </tr>
         `;
 
-        extraMenuList.appendChild(listItem)
+        extraMenuList.appendChild(listItem);
 
     })
 
     function removeRow(e){
-        e.closest('tr').remove()
+        e.closest('tr').remove();
     }
 
 

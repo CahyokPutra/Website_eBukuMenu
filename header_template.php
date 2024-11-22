@@ -146,7 +146,7 @@ if (!isset($_SESSION['uid'])) {
             background-color: ;
             border-radius: 3px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1rem;    
         }
     </style>
 </head>
